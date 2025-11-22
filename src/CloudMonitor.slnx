@@ -1,1 +1,3 @@
-<Solution />
+<Solution>
+  <Project Path="CloudMonitor.Api/CloudMonitor.Api.csproj" />
+</Solution>
