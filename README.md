@@ -45,3 +45,16 @@ az deployment group create \
   --confirm-with-what-if \
   --debug
 ```
+
+```shell
+rgName="rg-cloud-monitor"
+serverName="cloud-monitor-sql-prod"
+ipToAllow="203.0.113.42"
+
+az sql server firewall-rule create \
+  --resource-group $rgName \
+  --server $serverName \
+  --name AllowMyIP \
+  --start-ip-address $ipToAllow \
+  --end-ip-address $ipToAllow
+```
