@@ -48,8 +48,8 @@ az deployment group create \
 
 ```shell
 rgName="rg-cloud-monitor"
-serverName="cloud-monitor-sql-prod"
-ipToAllow="203.0.113.42"
+serverName="cloud-monitor-sql-server-prod"
+ipToAllow=$(curl -s ifconfig.me)
 
 az sql server firewall-rule create \
   --resource-group $rgName \
