@@ -58,3 +58,18 @@ az sql server firewall-rule create \
   --start-ip-address $ipToAllow \
   --end-ip-address $ipToAllow
 ```
+
+#### Update Database
+
+```shell
+ASPNETCORE_ENVIRONMENT="Production"
+
+dotnet ef database update \
+  --project CloudMonitor.Persistence \
+  --startup-project CloudMonitor.Api
+```
+
+### Azure Pipelines
+
+Run the pipeline defined in the file `.azure-pipelines/build-test-deploy-pipeline.yml` to deploy the application to
+Azure.
