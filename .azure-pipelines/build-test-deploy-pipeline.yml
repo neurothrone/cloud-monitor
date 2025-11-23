@@ -2,16 +2,17 @@ trigger: none
 
 parameters:
   - name: azureServiceConnection
-    displayName: 'Azure Service Connection'
+    displayName: 'Azure Service Connection Name'
     type: string
+    default: 'cloud-monitor-connection'
   - name: resourceGroupName
     displayName: 'Resource Group Name'
     type: string
-    default: 'rg-cm-prod'
+    default: 'rg-cloud-monitor-prod'
   - name: appServiceName
     displayName: 'App Service Name'
     type: string
-    default: 'cm-app-prod'
+    default: 'cloud-monitor-app-prod'
 
 pool:
   vmImage: 'ubuntu-latest'
