@@ -22,6 +22,8 @@ var sqlServerName = '${namePrefix}-sql-server-${environment}'
 var sqlDatabaseName = '${namePrefix}-sql-db-${environment}'
 var appServicePlanName = '${namePrefix}-plan-${environment}'
 var appServiceName = '${namePrefix}-app-${environment}'
+var logAnalyticsWorkspaceName = '${namePrefix}-law-${environment}'
+var appInsightsName = '${namePrefix}-ai-${environment}'
 
 // SQL Server
 resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' = {
@@ -61,6 +63,31 @@ resource sqlFirewallRule 'Microsoft.Sql/servers/firewallRules@2024-05-01-preview
   }
 }
 
+// Log Analytics Workspace
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
+  name: logAnalyticsWorkspaceName
+  location: location
+  properties: {
+    sku: {
+      name: 'PerGB2018'
+    }
+    retentionInDays: 30
+  }
+}
+
+// Application Insights
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: appInsightsName
+  location: location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+    WorkspaceResourceId: logAnalyticsWorkspace.id
+    publicNetworkAccessForIngestion: 'Enabled'
+    publicNetworkAccessForQuery: 'Enabled'
+  }
+}
+
 // App Service Plan
 resource appServicePlan 'Microsoft.Web/serverfarms@2024-04-01' = {
   name: appServicePlanName
@@ -82,9 +109,19 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       linuxFxVersion: 'DOTNETCORE|10.0'
-      alwaysOn: true
+      alwaysOn: environment == 'prod' ? true : false
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
+      appSettings: [
+        {
+          name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+          value: appInsights.properties.ConnectionString
+        }
+        {
+          name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
+          value: '~3'
+        }
+      ]
       connectionStrings: [
         {
           name: 'DefaultConnection'
@@ -101,3 +138,5 @@ output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
 output databaseName string = sqlDatabaseName
 output appServiceUrl string = 'https://${appService.properties.defaultHostName}'
 output appServiceName string = appService.name
+output appInsightsInstrumentationKey string = appInsights.properties.InstrumentationKey
+output appInsightsConnectionString string = appInsights.properties.ConnectionString
