@@ -1,6 +1,0 @@
-@apiUrl = https://localhost:7001
-
-
-### Get Weather Forecast
-GET {{apiUrl}}/weatherforecast
-Accept: application/json

@@ -6,9 +6,4 @@ namespace CloudMonitor.Persistence.Data;
 public class CloudMonitorDbContext(DbContextOptions<CloudMonitorDbContext> options) : DbContext(options)
 {
     public DbSet<PersonEntity> Persons => Set<PersonEntity>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-    }
 }

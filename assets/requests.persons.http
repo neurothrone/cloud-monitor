@@ -1,0 +1,31 @@
+@apiUrl = https://localhost:7001/api/v1/persons
+
+
+#### Get All Persons
+GET {{apiUrl}}
+Accept: application/json
+
+#### Get Person by ID
+GET {{apiUrl}}/1
+Accept: application/json
+
+#### Create New Person
+POST {{apiUrl}}
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com"
+}
+
+#### Update Person by ID
+PUT {{apiUrl}}/1
+Content-Type: application/json
+
+{
+  "name": "Jane Doe",
+  "email": "jane.doe@example.com"
+}
+
+#### Delete Person by ID
+DELETE {{apiUrl}}/1

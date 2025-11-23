@@ -9,9 +9,12 @@ public class PersonEntity
     [Key]
     public int Id { get; set; }
 
+    [Required]
     [MaxLength(100)]
-    public required string FirstName { get; set; }
+    public required string Name { get; set; }
 
-    [MaxLength(100)]
-    public required string LastName { get; set; }
+    [Required]
+    [EmailAddress]
+    [MaxLength(254)]
+    public required string Email { get; set; }
 }
