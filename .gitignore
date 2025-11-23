@@ -1,5 +1,6 @@
 # Sensitive files
 appsettings.json
+main.bicepparam
 
 
 ## Ignore Visual Studio temporary files, build results, and
