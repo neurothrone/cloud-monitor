@@ -1,0 +1,91 @@
+trigger: none
+
+parameters:
+  - name: azureServiceConnection
+    displayName: 'Azure Service Connection'
+    type: string
+  - name: resourceGroupName
+    displayName: 'Resource Group Name'
+    type: string
+    default: 'rg-cm-prod'
+  - name: appServiceName
+    displayName: 'App Service Name'
+    type: string
+    default: 'cm-app-prod'
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '10.x'
+
+stages:
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build .NET Application'
+        steps:
+          - task: UseDotNet@2
+            displayName: 'Install .NET SDK'
+            inputs:
+              version: $(dotnetVersion)
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet Packages'
+            inputs:
+              command: 'restore'
+              projects: 'src/**/*.csproj'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Build Solution'
+            inputs:
+              command: 'build'
+              projects: 'src/**/*.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-restore'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Run Tests'
+            inputs:
+              command: 'test'
+              projects: 'src/**/*Tests.csproj'
+              arguments: '--configuration $(buildConfiguration) --no-build'
+
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Application'
+            inputs:
+              command: 'publish'
+              projects: 'src/CloudMonitor.Api/CloudMonitor.Api.csproj'
+              arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory) --no-build'
+              zipAfterPublish: true
+          
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Application Artifact'
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'app'
+
+  - stage: Deploy
+    displayName: 'Deploy to Azure'
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployApp
+        displayName: 'Deploy Web API'
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - download: current
+                  artifact: app
+
+                - task: AzureWebApp@1
+                  displayName: 'Deploy to App Service'
+                  inputs:
+                    azureSubscription: ${{ parameters.azureServiceConnection }}
+                    appType: 'webAppLinux'
+                    appName: ${{ parameters.appServiceName }}
+                    package: '$(Pipeline.Workspace)/app/**/*.zip'
+                    runtimeStack: 'DOTNETCORE|10.0'
