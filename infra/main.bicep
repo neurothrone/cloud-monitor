@@ -119,7 +119,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
         }
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
-          value: '~3'
+          value: '~3' // ~2 for Windows or ~3 for Linux
         }
       ]
       connectionStrings: [
