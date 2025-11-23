@@ -7,9 +7,6 @@ param namePrefix string
 @description('The environment name (dev, staging, prod)')
 param environment string
 
-@description('SQL Database name')
-param databaseName string
-
 @description('SQL Server administrator login')
 @secure()
 param sqlAdminLogin string
@@ -21,7 +18,8 @@ param sqlAdminPassword string
 @description('App Service Plan SKU')
 param appServicePlanSku string = 'B1'
 
-var sqlServerName = '${namePrefix}-sql-${environment}'
+var sqlServerName = '${namePrefix}-sql-server-${environment}'
+var sqlDatabaseName = '${namePrefix}-sql-db-${environment}'
 var appServicePlanName = '${namePrefix}-plan-${environment}'
 var appServiceName = '${namePrefix}-app-${environment}'
 
@@ -41,7 +39,7 @@ resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' = {
 // SQL Database
 resource sqlDatabase 'Microsoft.Sql/servers/databases@2024-05-01-preview' = {
   parent: sqlServer
-  name: databaseName
+  name: sqlDatabaseName
   location: location
   sku: {
     name: 'Basic'
@@ -90,7 +88,7 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
       connectionStrings: [
         {
           name: 'DefaultConnection'
-          connectionString: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${databaseName};Persist Security Info=False;User ID=${sqlAdminLogin};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+          connectionString: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDatabaseName};Persist Security Info=False;User ID=${sqlAdminLogin};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
           type: 'SQLAzure'
         }
       ]
@@ -100,6 +98,6 @@ resource appService 'Microsoft.Web/sites@2024-04-01' = {
 }
 
 output sqlServerFqdn string = sqlServer.properties.fullyQualifiedDomainName
-output databaseName string = databaseName
+output databaseName string = sqlDatabaseName
 output appServiceUrl string = 'https://${appService.properties.defaultHostName}'
 output appServiceName string = appService.name
