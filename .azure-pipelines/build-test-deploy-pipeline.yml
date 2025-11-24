@@ -5,21 +5,35 @@ parameters:
     displayName: 'Azure Service Connection Name'
     type: string
     default: 'cloud-monitor-connection'
-  - name: resourceGroupName
-    displayName: 'Resource Group Name'
-    type: string
-    default: 'rg-cloud-monitor-prod'
   - name: appServiceName
     displayName: 'App Service Name'
     type: string
     default: 'cloud-monitor-app-prod'
+  - name: buildConfiguration
+    displayName: 'Build Configuration'
+    type: string
+    default: 'Release'
+  - name: dotnetVersion
+    displayName: '.NET Version'
+    type: string
+    default: '10.x'
+  - name: runtimeStack
+    displayName: 'Runtime Stack'
+    type: string
+    default: 'DOTNETCORE|10.0'
+  - name: aspNetCoreEnvironment
+    displayName: 'ASP.NET Core Environment'
+    type: string
+    default: 'Production'
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
-  dotnetVersion: '10.x'
+  buildConfiguration: ${{ parameters.buildConfiguration }}
+  dotnetVersion: ${{ parameters.dotnetVersion }}
+  # Will use the Azure CLI variable if it exists, otherwise fall back to the parameter default.
+  aspNetCoreEnvironment: $[ coalesce(variables.aspNetCoreEnvironment, '${{ parameters.aspNetCoreEnvironment }}') ]
 
 stages:
   - stage: Build
@@ -85,4 +99,5 @@ stages:
               appType: 'webAppLinux'
               appName: ${{ parameters.appServiceName }}
               package: '$(Pipeline.Workspace)/app/**/*.zip'
-              runtimeStack: 'DOTNETCORE|10.0'
+              runtimeStack: ${{ parameters.runtimeStack }}
+              appSettings: '-ASPNETCORE_ENVIRONMENT $(aspNetCoreEnvironment)'
