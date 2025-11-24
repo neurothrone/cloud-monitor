@@ -1,4 +1,11 @@
 trigger: none
+#trigger:
+#  branches:
+#    include:
+#      - main
+#  paths:
+#    include:
+#      - src/**
 
 parameters:
   - name: azureServiceConnection
