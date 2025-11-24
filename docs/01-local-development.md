@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [EF Core CLI tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
 
